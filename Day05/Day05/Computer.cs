@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Day05
 {
@@ -13,7 +12,7 @@ namespace Day05
             Command command;
             do
             {
-                command = GetCommand(program, ref currentPosition);
+                command = GetNextCommand(program, ref currentPosition);
 
                 if (command.Opcode == Opcode.Add)
                 {
@@ -45,19 +44,6 @@ namespace Day05
             program[destination] = first + second;
         }
 
-        public static int GetProgramValue(List<int> program, Parameter parameter)
-        {
-            int result;
-            if (parameter.ParameterMode == ParameterMode.Immediate)
-                result = parameter.Value;
-            else if (parameter.ParameterMode == ParameterMode.Position)
-                result = program[parameter.Value];
-            else
-                throw new Exception(parameter.ParameterMode.ToString());
-            //currentPosition++;
-            return result;
-        }
-
         private static void HandleMultiply(List<int> program, Command command)
         {
             var first = GetProgramValue(program, command.Parameters[0]);
@@ -68,25 +54,36 @@ namespace Day05
 
         private static void HandleInput(List<int> program, Command command, ref int currentPosition, bool bypassInput)
         {
-            int inputResult;
-            if (bypassInput)
-            {
-                inputResult = 1;
-            }
-            else
-            {
-                Console.WriteLine("Please enter integer input:");
-                var input = Console.ReadLine();
-                var validInput = int.TryParse(input, out inputResult);
-                if (!validInput)
-                {
-                    Console.WriteLine("Input was not an integer, exiting");
-                    Environment.Exit(-1);
-                }
-            }
+            var inputResult = bypassInput ? 1 : ReadFromConsole();
 
             var destination = command.Parameters[0].Value;
             program[destination] = inputResult;
+        }
+
+        private static int ReadFromConsole()
+        {
+            Console.WriteLine("Please enter integer input:");
+            var input = Console.ReadLine();
+            var validInput = int.TryParse(input, out var inputResult);
+            if (!validInput)
+            {
+                Console.WriteLine("Input was not an integer, exiting");
+                Environment.Exit(-1);
+            }
+
+            return inputResult;
+        }
+
+        public static int GetProgramValue(List<int> program, Parameter parameter)
+        {
+            int result;
+            if (parameter.ParameterMode == ParameterMode.Immediate)
+                result = parameter.Value;
+            else if (parameter.ParameterMode == ParameterMode.Position)
+                result = program[parameter.Value];
+            else
+                throw new Exception(parameter.ParameterMode.ToString());
+            return result;
         }
 
         public static void HandleOutput(List<int> program, Command command, ref int output)
@@ -94,11 +91,6 @@ namespace Day05
             var first = GetProgramValue(program, command.Parameters[0]);
             output = first;
             Console.WriteLine(first);
-        }
-
-        private static Command GetCommand(List<int> program, ref int currentPosition)
-        {
-            return GetNextCommand(program, ref currentPosition);
         }
 
         public static Opcode ConvertToOpcode(int input)
@@ -120,46 +112,28 @@ namespace Day05
             }
         }
 
-        public static int GetRequiredParameters(Opcode input)
-        {
-            switch (input)
-            {
-                case Opcode.Input:
-                case Opcode.Output:
-                    return 1;
-                case Opcode.Add:
-                case Opcode.Multiply:
-                    return 3;
-                case Opcode.Exit:
-                    return 0;
-                default:
-                    throw new Exception(string.Format("unhandled opcode {0}", input));
-            }
-        }
-
         public static Command GetNextCommand(List<int> program, ref int currentPosition)
         {
             var commandString = program[currentPosition++].ToString();
             var result = new Command();
             var opCodeDigit = Convert.ToInt32(commandString.Substring(Math.Max(0, commandString.Length - 2)));
             result.Opcode = ConvertToOpcode(opCodeDigit);
-            var numberOfParameters = GetRequiredParameters(result.Opcode);
 
             var positionString = commandString.Substring(0, Math.Max(0, commandString.Length - 2));
             var positionStringIndex = positionString.Length;
 
-            for (var x = 0; x < numberOfParameters; x++)
+            for (var x = 0; x < result.RequiredParameters; x++)
             {
                 var parameter = new Parameter();
                 if (positionStringIndex != 0)
                 {
-                    var parmeterModeValue = Convert.ToInt32(positionString[positionStringIndex - 1].ToString());
-                    if (parmeterModeValue == 0)
+                    var parameterModeValue = Convert.ToInt32(positionString[positionStringIndex - 1].ToString());
+                    if (parameterModeValue == 0)
                         parameter.ParameterMode = ParameterMode.Position;
-                    else if (parmeterModeValue == 1)
+                    else if (parameterModeValue == 1)
                         parameter.ParameterMode = ParameterMode.Immediate;
                     else 
-                        throw new Exception(parmeterModeValue.ToString());
+                        throw new Exception(parameterModeValue.ToString());
                     positionStringIndex--;
 
                 }
@@ -175,29 +149,4 @@ namespace Day05
             return result;
         }
     }
-
-    public class Command
-    {
-        public Command()
-        {
-            Parameters = new List<Parameter>();
-        }
-        public Opcode Opcode { get; set; }
-
-        //public List<ParameterMode> ParameterModes { get; set; }
-        public List<Parameter> Parameters { get; set; }
-    }
-
-    public class Parameter
-    {
-        public ParameterMode ParameterMode { get; set; }
-        public int Value { get; set; }
-    }
-
-    public enum ParameterMode
-    {
-        Position,
-        Immediate
-    }
-
 }
