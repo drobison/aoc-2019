@@ -5,7 +5,7 @@
         Add,
         Multiply,
         Exit,
-        Save,
+        Input,
         Output
 
     }

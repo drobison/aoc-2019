@@ -5,11 +5,13 @@ using System.Linq;
 
 namespace Day05
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var program = LoadInput("input.txt");
+
+            var result = Computer.ProcessInput(program);
         }
         public static List<int> LoadInput(string fileName)
         {
