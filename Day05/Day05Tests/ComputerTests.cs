@@ -24,17 +24,17 @@ namespace Day05Tests
 
         }
 
-        [Test]
-        public void GetCommand()
-        {
-            var input = 1002;
-            var result = Computer.GetNextCommand(input);
-            Assert.AreEqual(Opcode.Multiply, result.Opcode);
-            Assert.AreEqual(3, result.ParameterModes.Count);
-            Assert.AreEqual(ParameterMode.Position, result.ParameterModes[0]);
-            Assert.AreEqual(ParameterMode.Immediate, result.ParameterModes[1]);
-            Assert.AreEqual(ParameterMode.Position, result.ParameterModes[2]);
-        }
+        //[Test]
+        //public void GetCommand()
+        //{
+        //    var input = 1002;
+        //    var result = Computer.GetNextCommand(input);
+        //    Assert.AreEqual(Opcode.Multiply, result.Opcode);
+        //    Assert.AreEqual(3, result.ParameterModes.Count);
+        //    Assert.AreEqual(ParameterMode.Position, result.ParameterModes[0]);
+        //    Assert.AreEqual(ParameterMode.Immediate, result.ParameterModes[1]);
+        //    Assert.AreEqual(ParameterMode.Position, result.ParameterModes[2]);
+        //}
 
         [Test]
         public void ProcessInput()

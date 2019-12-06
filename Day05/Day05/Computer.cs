@@ -13,15 +13,15 @@ namespace Day05
             Command command;
             do
             {
-                command = GetNextCommand(program, currentPosition++);
+                command = GetCommand(program, ref currentPosition);
 
                 if (command.Opcode == Opcode.Add)
                 {
-                    HandleAdd(program, command, ref currentPosition);
+                    HandleAdd(program, command);
                 }
                 else if (command.Opcode == Opcode.Multiply)
                 {
-                    HandleMultiply(program, command, ref currentPosition);
+                    HandleMultiply(program, command);
                 }
                 else if (command.Opcode == Opcode.Input)
                 {
@@ -29,7 +29,7 @@ namespace Day05
                 }
                 else if (command.Opcode == Opcode.Output)
                 {
-                    HandleOutput(program, command, ref currentPosition, ref lastOutput);
+                    HandleOutput(command, ref lastOutput);
                 }
 
             } while (command.Opcode != Opcode.Exit);
@@ -37,11 +37,11 @@ namespace Day05
             return lastOutput;
         }
 
-        private static void HandleAdd(List<int> program, Command command, ref int currentPosition)
+        private static void HandleAdd(List<int> program, Command command)
         {
-            var first = GetProgramValue(program, command.ParameterModes[0], ref currentPosition);
-            var second = GetProgramValue(program, command.ParameterModes[1], ref currentPosition);
-            var destination = program[currentPosition++];
+            var first = command.Parameters[0].Value;
+            var second = command.Parameters[1].Value;
+            var destination = command.Parameters[2].Value;
             program[destination] = first + second;
         }
 
@@ -58,11 +58,11 @@ namespace Day05
             return result;
         }
 
-        private static void HandleMultiply(List<int> program, Command command, ref int currentPosition)
+        private static void HandleMultiply(List<int> program, Command command)
         {
-            var first = GetProgramValue(program, command.ParameterModes[0], ref currentPosition);
-            var second = GetProgramValue(program, command.ParameterModes[1], ref currentPosition);
-            var destination = program[currentPosition++];
+            var first = command.Parameters[0].Value;
+            var second = command.Parameters[1].Value;
+            var destination = command.Parameters[2].Value;
             program[destination] = first * second;
         }
 
@@ -89,16 +89,16 @@ namespace Day05
             program[destination] = inputResult;
         }
 
-        public static void HandleOutput(List<int> program, Command command, ref int currentPosition, ref int output)
+        public static void HandleOutput(Command command, ref int output)
         {
-            var first = GetProgramValue(program, command.ParameterModes[0], ref currentPosition);
+            var first = command.Parameters[0].Value;
             output = first;
             Console.WriteLine(first);
         }
 
-        private static Command GetNextCommand(List<int> program, int currentPosition)
+        private static Command GetCommand(List<int> program, ref int currentPosition)
         {
-            return GetNextCommand(program[currentPosition]);
+            return GetNextCommand(program, ref currentPosition);
         }
 
         public static Opcode ConvertToOpcode(int input)
@@ -137,9 +137,9 @@ namespace Day05
             }
         }
 
-        public static Command GetNextCommand(int command)
+        public static Command GetNextCommand(List<int> program, ref int currentPosition)
         {
-            var commandString = command.ToString();
+            var commandString = program[++currentPosition].ToString();
             var result = new Command();
             var opCodeDigit = Convert.ToInt32(commandString.Substring(Math.Max(0, commandString.Length - 2)));
             result.Opcode = ConvertToOpcode(opCodeDigit);
@@ -150,13 +150,14 @@ namespace Day05
 
             for (var x = 0; x < numberOfParameters; x++)
             {
+                var parameter = new Parameter();
                 if (positionStringIndex != 0)
                 {
                     var parmeterModeValue = Convert.ToInt32(positionString[positionStringIndex - 1].ToString());
                     if (parmeterModeValue == 0)
-                        result.ParameterModes.Add(ParameterMode.Position);
+                        parameter.ParameterMode = ParameterMode.Position;
                     else if (parmeterModeValue == 1)
-                        result.ParameterModes.Add(ParameterMode.Immediate);
+                        parameter.ParameterMode = ParameterMode.Immediate;
                     else 
                         throw new Exception(parmeterModeValue.ToString());
                     positionStringIndex--;
@@ -164,8 +165,11 @@ namespace Day05
                 }
                 else
                 {
-                    result.ParameterModes.Add(ParameterMode.Position);
+                    parameter.ParameterMode = ParameterMode.Position;
                 }
+
+                parameter.Value = GetProgramValue(program, parameter.ParameterMode, ref currentPosition);
+                result.Parameters.Add(parameter);
             }
 
             return result;
@@ -176,11 +180,18 @@ namespace Day05
     {
         public Command()
         {
-            ParameterModes = new List<ParameterMode>();
+            Parameters = new List<Parameter>();
         }
         public Opcode Opcode { get; set; }
 
-        public List<ParameterMode> ParameterModes { get; set; }
+        //public List<ParameterMode> ParameterModes { get; set; }
+        public List<Parameter> Parameters { get; set; }
+    }
+
+    public class Parameter
+    {
+        public ParameterMode ParameterMode { get; set; }
+        public int Value { get; set; }
     }
 
     public enum ParameterMode
