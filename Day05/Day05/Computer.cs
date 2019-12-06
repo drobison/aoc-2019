@@ -85,7 +85,7 @@ namespace Day05
                 }
             }
 
-            var destination = program[currentPosition++];
+            var destination = command.Parameters[0].Value;
             program[destination] = inputResult;
         }
 
@@ -139,7 +139,7 @@ namespace Day05
 
         public static Command GetNextCommand(List<int> program, ref int currentPosition)
         {
-            var commandString = program[++currentPosition].ToString();
+            var commandString = program[currentPosition++].ToString();
             var result = new Command();
             var opCodeDigit = Convert.ToInt32(commandString.Substring(Math.Max(0, commandString.Length - 2)));
             result.Opcode = ConvertToOpcode(opCodeDigit);
