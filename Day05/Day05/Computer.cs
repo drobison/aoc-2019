@@ -29,7 +29,7 @@ namespace Day05
                 }
                 else if (command.Opcode == Opcode.Output)
                 {
-                    HandleOutput(command, ref lastOutput);
+                    HandleOutput(program, command, ref lastOutput);
                 }
 
             } while (command.Opcode != Opcode.Exit);
@@ -39,29 +39,29 @@ namespace Day05
 
         private static void HandleAdd(List<int> program, Command command)
         {
-            var first = command.Parameters[0].Value;
-            var second = command.Parameters[1].Value;
+            var first = GetProgramValue(program, command.Parameters[0]);
+            var second = GetProgramValue(program, command.Parameters[1]);
             var destination = command.Parameters[2].Value;
             program[destination] = first + second;
         }
 
-        public static int GetProgramValue(List<int> program, ParameterMode mode, ref int currentPosition)
+        public static int GetProgramValue(List<int> program, Parameter parameter)
         {
             int result;
-            if (mode == ParameterMode.Immediate)
-                result = program[currentPosition];
-            else if (mode == ParameterMode.Position)
-                result = program[program[currentPosition]];
+            if (parameter.ParameterMode == ParameterMode.Immediate)
+                result = parameter.Value;
+            else if (parameter.ParameterMode == ParameterMode.Position)
+                result = program[parameter.Value];
             else
-                throw new Exception(mode.ToString());
-            currentPosition++;
+                throw new Exception(parameter.ParameterMode.ToString());
+            //currentPosition++;
             return result;
         }
 
         private static void HandleMultiply(List<int> program, Command command)
         {
-            var first = command.Parameters[0].Value;
-            var second = command.Parameters[1].Value;
+            var first = GetProgramValue(program, command.Parameters[0]);
+            var second = GetProgramValue(program, command.Parameters[1]);
             var destination = command.Parameters[2].Value;
             program[destination] = first * second;
         }
@@ -89,9 +89,9 @@ namespace Day05
             program[destination] = inputResult;
         }
 
-        public static void HandleOutput(Command command, ref int output)
+        public static void HandleOutput(List<int> program, Command command, ref int output)
         {
-            var first = command.Parameters[0].Value;
+            var first = GetProgramValue(program, command.Parameters[0]);
             output = first;
             Console.WriteLine(first);
         }
@@ -168,7 +168,7 @@ namespace Day05
                     parameter.ParameterMode = ParameterMode.Position;
                 }
 
-                parameter.Value = GetProgramValue(program, parameter.ParameterMode, ref currentPosition);
+                parameter.Value = program[currentPosition++];
                 result.Parameters.Add(parameter);
             }
 
