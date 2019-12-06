@@ -159,39 +159,12 @@ namespace Day05
             Console.WriteLine(first);
         }
 
-        public static Opcode ConvertToOpcode(int input)
-        {
-            switch (input)
-            {
-                case 1:
-                    return Opcode.Add;
-                case 2:
-                    return Opcode.Multiply;
-                case 3:
-                    return Opcode.Input;
-                case 4:
-                    return Opcode.Output;
-                case 5:
-                    return Opcode.JumpIfTrue;
-                case 6:
-                    return Opcode.JumpIfFalse;
-                case 7:
-                    return Opcode.LessThan;
-                case 8:
-                    return Opcode.Equals;
-                case 99:
-                    return Opcode.Exit;
-                default:
-                    throw new ArgumentException(input.ToString());
-            }
-        }
-
         public static Command GetNextCommand(List<int> program, ref int currentPosition)
         {
             var commandString = program[currentPosition++].ToString();
             var result = new Command();
             var opCodeDigit = Convert.ToInt32(commandString.Substring(Math.Max(0, commandString.Length - 2)));
-            result.Opcode = ConvertToOpcode(opCodeDigit);
+            result.Opcode = (Opcode)opCodeDigit;
 
             var positionString = commandString.Substring(0, Math.Max(0, commandString.Length - 2));
             var positionStringIndex = positionString.Length;
