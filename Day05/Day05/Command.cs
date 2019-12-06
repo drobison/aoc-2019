@@ -13,26 +13,32 @@ namespace Day05
 
         public List<Parameter> Parameters { get; set; }
 
-        public int RequiredParameters {
+        public int RequiredParameters
+        {
             get
             {
 
-                    switch (Opcode)
-                    {
-                        case Opcode.Input:
-                        case Opcode.Output:
-                            return 1;
-                        case Opcode.Add:
-                        case Opcode.Multiply:
-                            return 3;
-                        case Opcode.Exit:
-                            return 0;
-                        default:
-                            throw new Exception(string.Format("unhandled opcode {0}", Opcode));
-                    }
-                
+                switch (Opcode)
+                {
+                    case Opcode.Input:
+                    case Opcode.Output:
+                        return 1;
+                    case Opcode.JumpIfTrue:
+                    case Opcode.JumpIfFalse:
+                        return 2;
+                    case Opcode.Add:
+                    case Opcode.Multiply:
+                    case Opcode.LessThan:
+                    case Opcode.Equals:
+                        return 3;
+                    case Opcode.Exit:
+                        return 0;
+                    default:
+                        throw new Exception(string.Format("unhandled opcode {0}", Opcode));
+                }
+
             }
-        
+
         }
     }
 }

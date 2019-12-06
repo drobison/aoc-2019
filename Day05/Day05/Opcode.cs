@@ -6,8 +6,11 @@
         Multiply,
         Exit,
         Input,
-        Output
-
+        Output,
+        JumpIfTrue,
+        JumpIfFalse,
+        LessThan,
+        Equals
     }
 
 }

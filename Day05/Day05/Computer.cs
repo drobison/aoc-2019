@@ -30,10 +30,76 @@ namespace Day05
                 {
                     HandleOutput(program, command, ref lastOutput);
                 }
+                else if (command.Opcode == Opcode.JumpIfTrue)
+                {
+                    HandleJumpIfTrue(program, command, ref currentPosition);
+                }
+                else if (command.Opcode == Opcode.JumpIfFalse)
+                {
+                    HandleJumpIfFalse(program, command, ref currentPosition);
+                }
+                else if (command.Opcode == Opcode.LessThan)
+                {
+                    HandleLessThan(program, command);
+                }
+                else if (command.Opcode == Opcode.Equals)
+                {
+                    HandleEquals(program, command);
+                }
 
             } while (command.Opcode != Opcode.Exit);
 
             return lastOutput;
+        }
+
+        private static void HandleJumpIfTrue(List<int> program, Command command, ref int currentPosition)
+        {
+            var first = GetProgramValue(program, command.Parameters[0]);
+            var second = GetProgramValue(program, command.Parameters[1]);
+            if (first != 0)
+            {
+                currentPosition = second;
+            }
+        }
+
+        private static void HandleJumpIfFalse(List<int> program, Command command, ref int currentPosition)
+        {
+            var first = GetProgramValue(program, command.Parameters[0]);
+            var second = GetProgramValue(program, command.Parameters[1]);
+            if (first == 0)
+            {
+                currentPosition = second;
+            }
+        }
+
+        private static void HandleLessThan(List<int> program, Command command)
+        {
+            var first = GetProgramValue(program, command.Parameters[0]);
+            var second = GetProgramValue(program, command.Parameters[1]);
+            var destination = command.Parameters[2].Value;
+            if (first < second)
+            {
+                program[destination] = 1;
+            }
+            else
+            {
+                program[destination] = 0;
+            }
+        }
+
+        private static void HandleEquals(List<int> program, Command command)
+        {
+            var first = GetProgramValue(program, command.Parameters[0]);
+            var second = GetProgramValue(program, command.Parameters[1]);
+            var destination = command.Parameters[2].Value;
+            if (first == second)
+            {
+                program[destination] = 1;
+            }
+            else
+            {
+                program[destination] = 0;
+            }
         }
 
         private static void HandleAdd(List<int> program, Command command)
@@ -105,6 +171,14 @@ namespace Day05
                     return Opcode.Input;
                 case 4:
                     return Opcode.Output;
+                case 5:
+                    return Opcode.JumpIfTrue;
+                case 6:
+                    return Opcode.JumpIfFalse;
+                case 7:
+                    return Opcode.LessThan;
+                case 8:
+                    return Opcode.Equals;
                 case 99:
                     return Opcode.Exit;
                 default:

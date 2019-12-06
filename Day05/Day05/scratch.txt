@@ -5,7 +5,8 @@ OpCodes
 4 - Output
 99 - Exit
 
-correct output - 2845163
+correct output part 1 - 2845163
+correct output part 2 - 9436229
 
 3,225,
 1,225,6,6,
