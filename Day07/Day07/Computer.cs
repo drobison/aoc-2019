@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Day07
 {
     public static class Computer
     {
-        public static int ProcessInput(List<int> program, List<int> bypassInputValues = null)
+        public static int ProcessInput(List<int> program, ConcurrentQueue<int> input = null, ConcurrentQueue<int> output = null, bool bypassInput = false)
         {
             var currentPosition = 0;
             var lastOutput = 0;
@@ -25,11 +27,11 @@ namespace Day07
                 }
                 else if (command.Opcode == Opcode.Input)
                 {
-                    HandleInput(program, command, ref currentPosition, bypassInputValues, currentInput++);
+                    HandleInput(program, command, ref currentPosition, input, currentInput++, bypassInput);
                 }
                 else if (command.Opcode == Opcode.Output)
                 {
-                    HandleOutput(program, command, ref lastOutput);
+                    HandleOutput(program, command, ref lastOutput, output);
                 }
                 else if (command.Opcode == Opcode.JumpIfTrue)
                 {
@@ -47,6 +49,7 @@ namespace Day07
                 {
                     HandleEquals(program, command);
                 }
+
 
             } while (command.Opcode != Opcode.Exit);
 
@@ -119,9 +122,22 @@ namespace Day07
             program[destination] = first * second;
         }
 
-        private static void HandleInput(List<int> program, Command command, ref int currentPosition, List<int> bypassInput, int currentInput)
+        private static void HandleInput(List<int> program, Command command, ref int currentPosition, ConcurrentQueue<int> input, int currentInput, bool bypassInput)
         {
-            var inputResult = bypassInput?[currentInput] ?? ReadFromConsole();
+            int inputResult;
+            if (!bypassInput)
+            {
+                inputResult = ReadFromConsole();
+            }
+            else
+            {
+                while (input.IsEmpty)
+                {
+                    Thread.Sleep(50);
+                }
+
+                input.TryDequeue(out inputResult);
+            }
 
             var destination = command.Parameters[0].Value;
             program[destination] = inputResult;
@@ -153,11 +169,12 @@ namespace Day07
             return result;
         }
 
-        public static void HandleOutput(List<int> program, Command command, ref int output)
+        public static void HandleOutput(List<int> program, Command command, ref int output, ConcurrentQueue<int> outputList)
         {
             var first = GetProgramValue(program, command.Parameters[0]);
+            outputList.Enqueue(first);
             output = first;
-            Console.WriteLine(first);
+            //Console.WriteLine(first);
         }
 
         public static Command GetNextCommand(List<int> program, ref int currentPosition)
