@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Day03
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -14,11 +14,22 @@ namespace Day03
             // translate input to coordinates
             LoadData("input.txt", out var points1, out var points2);
             var intersections = FindIntersections(points1, points2);
-            // determine intersections
-            //2, 0 - 2, 4
-            //0, 2 - 0, 8
-            // find the shortest distance
-            var shortest
+            var min = Int32.MaxValue;
+            foreach (var intersection in intersections)
+            {
+                min = Math.Min(min, ManhattanDistanceFromCenter(intersection));
+            }
+        }
+
+        public static int ManhattanDistanceFromCenter(PointF first)
+        {
+            return Convert.ToInt32(Math.Abs(first.X) + Math.Abs(first.Y));
+        }
+
+        public static int LineLength(PointF first, PointF second)
+        {
+            // Formula sqrt((x2 - x1)^2 + (y2 - y1)^2)
+            return Convert.ToInt32(Math.Sqrt(Math.Pow((second.Y - first.Y), 2) + Math.Pow((second.X - first.X), 2)));
         }
 
         private static List<PointF> FindIntersections(List<Point> points1, List<Point> points2)
