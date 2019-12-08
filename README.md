@@ -19,3 +19,12 @@ Begin constructing compiler for *Intcode* programming language
 Generating permutations of possible numeric passwords given a set of criteria. 
 
 ## [Day 5](https://adventofcode.com/2019/day/5)
+Continued compiler for *Intcode* programming language
+
+## [Day 6](https://adventofcode.com/2019/day/6)
+Graph building and path searching for shortest path
+
+## [Day 7](https://adventofcode.com/2019/day/7)
+Making computer for *Intcode* to be able to run in parallel and communicate with other instances.
+
+## [Day 8](https://adventofcode.com/2019/day/8)
