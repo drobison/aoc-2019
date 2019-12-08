@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using NUnit.Framework;
 
@@ -19,6 +20,15 @@ namespace Day03.Tests
         {
             var result = Program.ManhattanDistanceFromCenter(new PointF(3f, 3f));
             Assert.AreEqual(6, result);
+        }
+
+        [Test]
+        public void MinMan()
+        {
+            var path1 = Program.ParsePoints(new List<string>(){"R8", "U5", "L5", "D3"});
+            var path2 = Program.ParsePoints(new List<string>() { "U7", "R6", "D4", "L4" });
+            var result = Program.FindMinManPath(path1, path2);
+            Assert.AreEqual(30, result);
         }
     }
 }

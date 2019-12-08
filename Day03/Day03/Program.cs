@@ -10,20 +10,81 @@ namespace Day03
     {
         static void Main(string[] args)
         {
-
             // translate input to coordinates
             LoadData("input.txt", out var points1, out var points2);
+            var result = FindMinManPath(points1, points2);
+        }
+
+        public static int FindMinManPath(List<Point> points1, List<Point> points2)
+        {
             var intersections = FindIntersections(points1, points2);
             var min = Int32.MaxValue;
             foreach (var intersection in intersections)
             {
-                min = Math.Min(min, ManhattanDistanceFromCenter(intersection));
+                var inter = new Point()
+                {
+                    X = Convert.ToInt32(intersection.X),
+                    Y = Convert.ToInt32(intersection.Y)
+                };
+
+                min = Math.Min(min, ManhattanDistanceToPoint(points1, inter) + ManhattanDistanceToPoint(points2, inter));
             }
+
+            return min;
         }
 
         public static int ManhattanDistanceFromCenter(PointF first)
         {
             return Convert.ToInt32(Math.Abs(first.X) + Math.Abs(first.Y));
+        }
+
+        public static bool IsVerticalLine(Point first, Point second)
+        {
+            if (first.X == second.X) return true;
+            return false;
+        }
+
+        public static bool BetweenTwoNumbers(int start, int end, int input)
+        {
+            var min = Math.Min(start, end);
+            var max = Math.Max(start, end);
+            return (input <= max && input >= min);
+        }
+
+        public static int ManhattanDistanceToPoint(List<Point> path, Point destination)
+        {
+            var distance = 0;
+            var startPoint = new Point(){X = 0, Y = 0};
+
+            foreach (var endPoint in path)
+            {
+                // does point exist in route to next point
+
+                if (IsVerticalLine(startPoint, endPoint))
+                {
+                    if ((endPoint.X == destination.X) && BetweenTwoNumbers(startPoint.Y, endPoint.Y, destination.Y))
+                    {
+                        distance += Math.Abs(destination.Y - startPoint.Y);
+                        return distance;
+                    }
+                    distance += Math.Abs(endPoint.Y - startPoint.Y);
+
+                }
+                else
+                {
+                    if ((endPoint.Y == destination.Y) && BetweenTwoNumbers(startPoint.X, endPoint.X, destination.X))
+                    {
+                        distance += Math.Abs(destination.X - startPoint.X);
+                        return distance;
+                    }
+
+                    distance += Math.Abs(endPoint.X - startPoint.X);
+                }
+
+                startPoint = endPoint;
+            }
+
+            return distance;
         }
 
         public static int LineLength(PointF first, PointF second)
