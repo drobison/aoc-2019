@@ -16,6 +16,43 @@ namespace Day08
             var numberOfOnes = CountNumbers(image, layerNumber, 1);
             var numberOfTwos = CountNumbers(image, layerNumber, 2);
             var result = numberOfOnes * numberOfTwos;
+            var decoded = DecodeImage(image);
+            Print(decoded);
+        }
+
+        public static void Print(int[,] image)
+        {
+            for (int row = 0; row < image.GetLength(0); row++)
+            {
+                for (int column = 0; column < image.GetLength(1); column++)
+                {
+                    Console.Write(image[row, column]);
+                }
+                Console.WriteLine();
+            }
+        }
+
+        public static int[,] DecodeImage(int[,,] image)
+        {
+            int rowCount = image.GetLength(1);
+            int columnCount = image.GetLength(0);
+            var result = new int[rowCount, columnCount];
+
+            for (int row = 0; row < result.GetLength(0); row++)
+            {
+                for (int column = 0; column < result.GetLength(1); column++)
+                {
+                    var depth = 0;
+                    while (image[column, row, depth] == 2)
+                    {
+                        depth++;
+                    }
+
+                    result[row, column] = image[column, row, depth];
+                }
+            }
+
+            return result;
         }
 
         private static int CountNumbers(int[,,] image, int depth, int target)

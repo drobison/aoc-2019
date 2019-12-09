@@ -30,5 +30,34 @@ namespace Day08.Tests
             // Data
             Assert.AreEqual(1, result[0,0,0]);
         }
+
+        [Test]
+        public void DecodeImage()
+        {
+            var input = new List<int>()
+            {
+                0,2,
+                2,2,
+                
+                1,1,
+                2,2,
+                
+                2,2,
+                1,2,
+
+                0,0,
+                0,0
+            };
+            var width = 2;
+            var height = 2;
+            var result = Program.BuildArray(input, height, width);
+            var decoded = Program.DecodeImage(result);
+
+            Assert.AreEqual(0, decoded[0,0]);
+            Assert.AreEqual(1, decoded[0, 1]);
+            Assert.AreEqual(1, decoded[1, 0]);
+            Assert.AreEqual(0, decoded[1, 1]);
+            Program.Print(decoded);
+        }
     }
 }
