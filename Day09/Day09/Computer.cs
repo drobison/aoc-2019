@@ -8,10 +8,20 @@ namespace Day09
     public static class Computer
     {
         private static Int64 _relativeBase = 0;
+
+        public static void SetRelativeBase(int input)
+        {
+            _relativeBase = input;
+        }
+
+        public static Int64 GetRelativeBase()
+        {
+            return _relativeBase;
+        }
         public static Int64 ProcessInput(List<Int64> program, ConcurrentQueue<Int64> input = null, ConcurrentQueue<Int64> output = null, bool bypassInput = false)
         {
             var currentPosition = 0;
-            var lastOutput = 0;
+            Int64 lastOutput = 0;
             var currentInput = 0;
             Command command;
             do
@@ -67,22 +77,24 @@ namespace Day09
             _relativeBase += first;
         }
 
-        private static void HandleJumpIfTrue(List<Int64> program, Command command, ref Int64 currentPosition)
+        private static void HandleJumpIfTrue(List<Int64> program, Command command, ref int currentPosition)
         {
             var first = GetProgramValue(program, command.Parameters[0]);
-            var second = GetProgramValue(program, command.Parameters[1]);
+            var second = Convert.ToInt32(GetProgramValue(program, command.Parameters[1]));
             if (first != 0)
             {
+                EnsureSize(program, second);
                 currentPosition = second;
             }
         }
 
-        private static void HandleJumpIfFalse(List<Int64> program, Command command, ref Int64 currentPosition)
+        private static void HandleJumpIfFalse(List<Int64> program, Command command, ref int currentPosition)
         {
             var first = GetProgramValue(program, command.Parameters[0]);
-            var second = GetProgramValue(program, command.Parameters[1]);
+            var second = Convert.ToInt32(GetProgramValue(program, command.Parameters[1]));
             if (first == 0)
             {
+                EnsureSize(program, second);
                 currentPosition = second;
             }
         }
@@ -91,7 +103,9 @@ namespace Day09
         {
             var first = GetProgramValue(program, command.Parameters[0]);
             var second = GetProgramValue(program, command.Parameters[1]);
-            var destination = command.Parameters[2].Value;
+            var destination = GetWriteIndex(command.Parameters[2]);
+            EnsureSize(program, destination);
+
             if (first < second)
             {
                 program[destination] = 1;
@@ -106,7 +120,9 @@ namespace Day09
         {
             var first = GetProgramValue(program, command.Parameters[0]);
             var second = GetProgramValue(program, command.Parameters[1]);
-            var destination = command.Parameters[2].Value;
+            var destination = GetWriteIndex(command.Parameters[2]);
+            EnsureSize(program, destination);
+
             if (first == second)
             {
                 program[destination] = 1;
@@ -121,7 +137,8 @@ namespace Day09
         {
             var first = GetProgramValue(program, command.Parameters[0]);
             var second = GetProgramValue(program, command.Parameters[1]);
-            var destination = command.Parameters[2].Value;
+            var destination = GetWriteIndex(command.Parameters[2]);
+            EnsureSize(program, destination);
             program[destination] = first + second;
         }
 
@@ -129,13 +146,15 @@ namespace Day09
         {
             var first = GetProgramValue(program, command.Parameters[0]);
             var second = GetProgramValue(program, command.Parameters[1]);
-            var destination = command.Parameters[2].Value;
+            var destination = GetWriteIndex(command.Parameters[2]);
+
+            EnsureSize(program, destination);
             program[destination] = first * second;
         }
 
-        private static void HandleInput(List<Int64> program, Command command, ref Int64 currentPosition, ConcurrentQueue<Int64> input, Int64 currentInput, bool bypassInput)
+        private static void HandleInput(List<Int64> program, Command command, ref int currentPosition, ConcurrentQueue<Int64> input, int currentInput, bool bypassInput)
         {
-            int inputResult;
+            Int64 inputResult;
             if (!bypassInput)
             {
                 inputResult = ReadFromConsole();
@@ -150,8 +169,13 @@ namespace Day09
                 input.TryDequeue(out inputResult);
             }
 
-            var destination = command.Parameters[0].Value;
-            program[destination] = inputResult;
+            var destinationPosition = GetWriteIndex(command.Parameters[0]);
+            program[destinationPosition] = inputResult;
+        }
+
+        public static int GetWriteIndex(Parameter parameter)
+        {
+            return Convert.ToInt32(parameter.ParameterMode == ParameterMode.Position ? parameter.Value : parameter.Value + _relativeBase);
         }
 
         private static Int64 ReadFromConsole()
@@ -170,16 +194,35 @@ namespace Day09
 
         public static Int64 GetProgramValue(List<Int64> program, Parameter parameter)
         {
-            int result;
+            Int64 result;
             if (parameter.ParameterMode == ParameterMode.Immediate)
                 result = parameter.Value;
             else if (parameter.ParameterMode == ParameterMode.Position)
-                result = program[parameter.Value];
+            {
+                EnsureSize(program, parameter.Value);
+                result = program[Convert.ToInt32(parameter.Value)];
+            }
             else if (parameter.ParameterMode == ParameterMode.Relative)
-                result = program[parameter.Value + _relativeBase];
+            {
+                EnsureSize(program, parameter.Value + _relativeBase);
+                result = program[Convert.ToInt32(parameter.Value + _relativeBase)];
+            }
             else
                 throw new Exception(parameter.ParameterMode.ToString());
             return result;
+        }
+
+        private static void EnsureSize(List<long> program, in long size)
+        {
+            var missingCapacity = size + 1 - program.Count;
+            if(missingCapacity > 0)
+            {
+                for(int x = 0; x < missingCapacity; x++)
+                {
+                    program.Add(0);
+                }
+            }
+
         }
 
         public static void HandleOutput(List<Int64> program, Command command, ref Int64 output, ConcurrentQueue<Int64> outputList)
